@@ -18,6 +18,17 @@ const validateSchema = async (data) => {
   return await boardCollectionSchema.validateAsync(data, { abortEarly: false });
 };
 
+const findOneById = async (id) => {
+  try {
+    const result = await getDatabase()
+      .collection(boardCollectionName)
+      .findOne({ _id: ObjectId(id) });
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 const createNew = async (data) => {
   try {
     const value = await validateSchema(data);
@@ -75,4 +86,9 @@ const getFullBoard = async (boardId) => {
   }
 };
 
-export const BoardModel = { createNew, pushColumnOrder, getFullBoard };
+export const BoardModel = {
+  createNew,
+  pushColumnOrder,
+  getFullBoard,
+  findOneById,
+};

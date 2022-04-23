@@ -50,6 +50,17 @@ const pushCardOrder = async (columnId, cardId) => {
   }
 };
 
+const findOneById = async (id) => {
+  try {
+    const result = await getDatabase()
+      .collection(columnCollectionName)
+      .findOne({ _id: ObjectId(id) });
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 const update = async (id, data) => {
   try {
     const result = await getDatabase()
@@ -70,4 +81,5 @@ export const ColumnModel = {
   createNew,
   pushCardOrder,
   update,
+  findOneById,
 };

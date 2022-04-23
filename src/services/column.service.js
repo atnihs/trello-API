@@ -1,17 +1,20 @@
 import { ColumnModel } from '*/models/column.model';
 import { BoardModel } from '*/models/board.model';
+import { CardModel } from '*/models/card.model';
 
 const createNew = async (data) => {
   try {
-    const newColumn = await ColumnModel.createNew(data);
+    const createdColumn = await ColumnModel.createNew(data);
+    const getNewColumn = await ColumnModel.findOneById(createdColumn.insertedId.toString());
+
 
     // update columnOrder Array in Board Collection
     await BoardModel.pushColumnOrder(
-      newColumn.boardId.toString(),
-      newColumn._id.toString()
+      getNewColumn.boardId.toString(),
+      getNewColumn._id.toString()
     );
 
-    return newColumn;
+    return getNewColumn;
   } catch (error) {
     throw new Error(error);
   }

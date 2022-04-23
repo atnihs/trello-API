@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import Joi from 'joi';
 import { getDatabase } from '*/config/mongodb';
 
@@ -5,7 +6,7 @@ import { getDatabase } from '*/config/mongodb';
 const columnCollectionName = 'columns';
 const columnCollectionSchema = Joi.object({
   boardId: Joi.string().required(),
-  title: Joi.string().required().min(3).max(30),
+  title: Joi.string().required().min(3).max(30).trim(),
   cardOrder: Joi.array().items(Joi.string()).default([]),
   createdAt: Joi.date().timestamp().default(Date.now()),
   updatedAt: Joi.date().timestamp().default(null),
@@ -13,7 +14,9 @@ const columnCollectionSchema = Joi.object({
 });
 
 const validateSchema = async (data) => {
-  return await columnCollectionSchema.validateAsync(data, { abortEarly: false });
+  return await columnCollectionSchema.validateAsync(data, {
+    abortEarly: false,
+  });
 };
 
 const createNew = async (data) => {
@@ -22,12 +25,26 @@ const createNew = async (data) => {
     const result = await getDatabase()
       .collection(columnCollectionName)
       .insertOne(value);
-
-    // console.log(result);
     return result;
   } catch (error) {
-    console.log(error);
+    throw new Error(error);
   }
 };
 
-export const ColumnModel = { createNew, validateSchema };
+const update = async (id, data) => {
+  try {
+    const result = await getDatabase()
+      .collection(columnCollectionName)
+      .findOneAndUpdate(
+        { _id: ObjectId(id) },
+        { $set: data },
+        { returnDocument: 'after' }
+      );
+    console.log(result);
+    return result.value;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+export const ColumnModel = { createNew, update };

@@ -5,8 +5,10 @@ import { CardModel } from '*/models/card.model';
 const createNew = async (data) => {
   try {
     const createdColumn = await ColumnModel.createNew(data);
-    const getNewColumn = await ColumnModel.findOneById(createdColumn.insertedId.toString());
-
+    createdColumn.cards = [];
+    const getNewColumn = await ColumnModel.findOneById(
+      createdColumn.insertedId.toString()
+    );
 
     // update columnOrder Array in Board Collection
     await BoardModel.pushColumnOrder(
@@ -26,8 +28,15 @@ const update = async (id, data) => {
       ...data,
       updatedAt: Date.now(),
     };
-    const result = await ColumnModel.update(id, updateData);
-    return result;
+    if (updateData._id) delete updateData._id;
+    if (updateData.cards) delete updateData.cards;
+
+    const updatedColumn = await ColumnModel.update(id, updateData);
+    if (updatedColumn._destroy) {
+      CardModel.deleteMany(updatedColumn.cardOrder);
+    }
+
+    return updatedColumn;
   } catch (error) {
     throw new Error(error);
   }

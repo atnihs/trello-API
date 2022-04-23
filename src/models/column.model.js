@@ -63,11 +63,15 @@ const findOneById = async (id) => {
 
 const update = async (id, data) => {
   try {
+    const updateDate = {
+      ...data,
+      boardId: ObjectId(data.boardId),
+    }
     const result = await getDatabase()
       .collection(columnCollectionName)
       .findOneAndUpdate(
         { _id: ObjectId(id) },
-        { $set: data },
+        { $set: updateDate },
         { returnDocument: 'after' }
       );
     return result;

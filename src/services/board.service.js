@@ -3,8 +3,12 @@ import { cloneDeep } from 'lodash';
 
 const createNew = async (data) => {
   try {
-    const result = await BoardModel.createNew(data);
-    return result;
+    const createdBoard = await BoardModel.createNew(data);
+    const getNewBoard = await BoardModel.findOneById(
+      createdBoard.insertedId.toString()
+    );
+
+    return getNewBoard;
   } catch (error) {
     throw new Error(error);
   }
@@ -18,7 +22,9 @@ const getFullBoard = async (boardId) => {
 
     const transformBoard = cloneDeep(board);
     // Filter deleted columns
-    transformBoard.columns = transformBoard.columns.filter((column) => !column._destroy);
+    transformBoard.columns = transformBoard.columns.filter(
+      (column) => !column._destroy
+    );
 
     // add Card to each Column
     transformBoard.columns.forEach((column) => {
@@ -36,4 +42,21 @@ const getFullBoard = async (boardId) => {
   }
 };
 
-export const BoardService = { createNew, getFullBoard };
+const update = async (id, data) => {
+  try {
+    const updateData = {
+      ...data,
+      updatedAt: Date.now(),
+    };
+    if (updateData._id) delete updateData._id;
+    if (updateData.columns) delete updateData.columns;
+
+    const updatedBoard = await BoardModel.update(id, updateData);
+
+    return updatedBoard;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+export const BoardService = { createNew, getFullBoard, update };

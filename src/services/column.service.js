@@ -5,10 +5,10 @@ import { CardModel } from '*/models/card.model';
 const createNew = async (data) => {
   try {
     const createdColumn = await ColumnModel.createNew(data);
-    createdColumn.cards = [];
     const getNewColumn = await ColumnModel.findOneById(
       createdColumn.insertedId.toString()
     );
+    createdColumn.cards = [];
 
     // update columnOrder Array in Board Collection
     await BoardModel.pushColumnOrder(
